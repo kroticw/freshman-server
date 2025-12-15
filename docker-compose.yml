@@ -1,0 +1,20 @@
+services:
+  pg:
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "freshman_dev"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./storage/postgresql:/var/lib/postgresql/data/pgdata
+    ports:
+      - "54322:5432"
+#  jaeger:
+#    image: jaegertracing/all-in-one:latest
+#    restart: unless-stopped
+#    ports:
+#      - "127.0.0.1:16686:16686" # Web UI
+#      - "127.0.0.1:4317:4317" # gRPC OTLP Endpoint
+#      - "127.0.0.1:4318:4318" # HTTP OTLP Endpoint
+#    environment:
+#      COLLECTOR_OTLP_ENABLED: true
