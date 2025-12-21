@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"context"
+
+	"github.com/kroticw/freshman-server/infrastructure/sql"
+	"github.com/kroticw/freshman-server/infrastructure/transport/http"
+	"github.com/kroticw/freshman-server/internal/music"
 	"github.com/spf13/cobra"
 )
 
@@ -22,5 +27,28 @@ func init() {
 }
 
 func runServe(_ *cobra.Command, _ []string) {
-
+	var driver music.Storage
+	switch cfg.SourceStorage.Type {
+	case "filesystem":
+		if filesystemDriver == nil {
+			logger.Fatalln("filesystem driver selected but driver is not initialized")
+		}
+		driver = filesystemDriver
+	case "s3":
+		if s3Driver == nil {
+			logger.Fatalln("s3 driver selected but driver is not initialized")
+		}
+		driver = s3Driver
+	default:
+		logger.Fatalf("unknown storage driver %s", cfg.SourceStorage.Type)
+	}
+	musicRepo := sql.NewMusicRepo(dbConn)
+	musSvc := music.NewMusicService(driver, musicRepo, logger)
+	router := http.SetupRouter(context.Background(), musSvc, logger)
+	if cfg.Web.Enable {
+		err := router.Run(cfg.Web.Listen)
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}
 }

@@ -1,0 +1,14 @@
+DROP INDEX playlist_artist_idx;
+DROP TABLE playlist_artist;
+DROP INDEX song_artist_song_idx;
+DROP INDEX song_artist_idx;
+DROP INDEX artist_name_idx;
+DROP TABLE song_artist;
+DROP TABLE artist;
+DROP INDEX playlist_name_idx;
+DROP INDEX song_name_idx;
+DROP TABLE playlist_song;
+DROP TABLE playlist;
+DROP TABLE song;
+DROP TABLE session;
+DROP TABLE users;

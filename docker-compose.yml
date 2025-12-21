@@ -9,6 +9,46 @@ services:
       - ./storage/postgresql:/var/lib/postgresql/data/pgdata
     ports:
       - "54322:5432"
+
+  weed-master:
+    image: chrislusf/seaweedfs:latest
+    command: master -ip=weed-master -port=9333
+    ports:
+      - "9333:9333"   # master
+      - "19333:19333" # master grpc (на будущее)
+
+  weed-volume:
+    image: chrislusf/seaweedfs:latest
+    command: volume -mserver="weed-master:9333" -ip=weed-volume -port=8080 -dir=/data
+    depends_on:
+      - weed-master
+    volumes:
+      - ./storage/seaweedfs/volume:/data
+    ports:
+      - "8080:8080"   # volume http
+      - "18080:18080" # volume grpc (опционально)
+
+  weed-filer:
+    image: chrislusf/seaweedfs:latest
+    command: filer -master="weed-master:9333" -ip=weed-filer -port=8888
+    depends_on:
+      - weed-master
+      - weed-volume
+    ports:
+      - "8888:8888"   # filer
+
+  weed-s3:
+    image: chrislusf/seaweedfs:latest
+    command: s3 -filer="weed-filer:8888" -port=8333
+    depends_on:
+      - weed-filer
+    ports:
+      - "8333:8333"   # S3 endpoint
+    environment:
+      # Если хотите фиксированные ключ/секрет (чтобы приложение могло подключаться как к обычному S3)
+      # В разных версиях SeaweedFS поддержка env может отличаться — см. примечание ниже.
+      AWS_ACCESS_KEY_ID: "123"
+      AWS_SECRET_ACCESS_KEY: "123123"
 #  jaeger:
 #    image: jaegertracing/all-in-one:latest
 #    restart: unless-stopped
