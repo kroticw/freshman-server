@@ -29,5 +29,10 @@ go.work.sum
 config.yaml
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
+.cursor
+
+bin/
+local-storage/
+storage/
